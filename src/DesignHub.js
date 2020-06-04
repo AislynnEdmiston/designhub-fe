@@ -11,7 +11,6 @@ import UserProfileLI from './views/UserProfile/UserProfile_LI';
 // import AddProject from './views/Projects/AddProject';
 // import SearchPage from './views/Search/SearchPage';
 // import Notifications from './views/Notifications/Notifications';
-// import EditProject from './views/Projects/EditProject';
 import Explore from './views/Explore/Explore';
 // import NewLandingPage from './views/LandingPage/NewLandingPage';
 
