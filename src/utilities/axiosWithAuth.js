@@ -8,6 +8,6 @@ export const axiosWithAuth = () => {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
     },
-    baseURL: `${process.env.REACT_APP_BASE_URL}`
+    baseURL: `${process.env.REACT_APP_GQL_API}`
   });
 };
