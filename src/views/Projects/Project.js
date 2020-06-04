@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from 'react-apollo';
 import moment from 'moment';
@@ -29,233 +29,323 @@ import projectInvitesById from '../../graphql/queries/projectInvitesById';
 import researchByProject from '../../graphql/queries/researchByProject';
 import getCatById from '../../graphql/queries/getCatById';
 
-import {
-  ProjectUser,
-  getProjectPhotos,
-  getProjectComments,
-  starProject,
-  getStarStatus,
-  //unstarProject,?
-  getInvitesByProjectId,
-  getUsersFromInvites,
-  getProjectResearch,
-  getCategoriesByProjectId,
-} from '../../store/actions';
+// import {
+//   ProjectUser,
+//   getProjectPhotos,
+//   getProjectComments,
+//   starProject,
+//   getStarStatus,
+//   //unstarProject,?
+//   getInvitesByProjectId,
+//   getUsersFromInvites,
+//   getProjectResearch,
+//   getCategoriesByProjectId,
+// } from '../../store/actions';
 
-class Project extends Component {
-  constructor(props) {
-    super(props);
-    this.projectId = this.props.match.params.id;
-    this.state = {
-      editAccess: false,
-      numPages: null,
-      pdfPage: 1,
-      showPDF: false,
-      pdfLoading: false,
-    };
-    // this.singleProject = useQuery(projectUser);
-    // this.getProjectPhotos = useQuery(projectPhotos);
-    // this.getProjectComments = useQuery(comments);
-    // this.getStarStatus = useQuery(starCount);
-    // this.getUsersFromInvites = useQuery(getInvite);
-    // this.getInvitesByProjectId = useQuery(projectInvitesById);
-    // this.getProjectResearch = useQuery(researchByProject);
-    // this.getCategoriesByProjectId = useQuery(getCatById);
-  }
+//change to function
+const Project = (props) => {
+  // useState
+  //this.projectId = this.props.match.params.id;
+  const [id, setId] = useState(null);
+  const [projectId, setProjectId] = useState(null);
+  const [editAccess, setEditAccess] = useState(false);
+  const [numPages, setNumPages] = useState(null);
+  const [pdfPage, setPdfPage] = useState(false);
+  const [showPDF, setShowPDF] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [activeUser, setActiveUser] = useState({
+    id: activeUser.id,
+    email: activeUser.email || '',
+  });
+  const [thisProject, setThisProject] = useState({
+    description: thisProject.description || '',
+    name: thisProject.name || '',
+    userId: thisProject.userId,
+    created_at: thisProject.created_at || '',
+    figma: thisProject.figma || '',
+    invision: thisProject.invision || '',
+    username: thisProject.username || '',
+    id: thisProject.id,
+    privateProjects: thisProject.privateProjects || '',
+  });
 
-  componentDidMount() {
-    this.props.getInvitesByProjectId(this.projectId).then(() => {
-      this.handleEditAccess();
-      this.props.getUsersFromInvites(this.props.projectInvites);
+  // useState object or break it up
+  // this.state = {
+  //   editAccess: false,
+  //   numPages: null,
+  //   pdfPage: 1,
+  //   showPDF: false,
+  //   pdfLoading: false,
+  // };
+  const singleProject = useQuery(projectUser, {
+    variables: {
+      id,
+    },
+  });
+  const getProjectPhotos = useQuery(projectPhotos, {
+    variables: {
+      projectId,
+    },
+  });
+  const getProjectComments = useQuery(comments, {
+    variables: {
+      projectId,
+    },
+  });
+  const getStarStatus = useQuery(starCount, {
+    variables: {
+      id,
+    },
+  });
+  const getUsersFromInvites = useQuery(getInvite, {
+    variables: {
+      id,
+    },
+  });
+  const getInvitesByProjectId = useQuery(projectInvitesById, {
+    variables: {
+      id,
+    },
+  });
+  const getProjectResearch = useQuery(researchByProject, {
+    variables: {
+      projectId,
+    },
+  });
+  const getCategoriesByProjectId = useQuery(getCatById, {
+    variables: {
+      id,
+    },
+  });
+  //change to use effect
+  useEffect(() => {
+    props.getInvitesByProjectId(projectId).then (() =>{
+      handleEditAccess();
+      props.getUsersFromInvites(props.projectInvites);
     });
-    this.props.getProjectResearch(this.projectId);
-    this.props.getStarStatus(
-      this.props.activeUser.id,
-      this.props.match.params.id
-    );
-    this.props
-      .singleProject(this.projectId) //gets a single project from the database
-      .then(() => {
-        //if there is an error skip the rest of this if/else block
-        if (this.props.singleProjectError !== null) {
-          console.log('single project error', this.props.singleProjectError);
-          return;
-        } else {
-          //if there are no errors, get the project, photos, and comments
-          this.props
-            .singleProject(this.projectId)
-            .then(() => {
-              this.props.getProjectPhotos(this.projectId);
-            })
-            .then(() => {
-              this.props.getProjectComments(this.props.match.params.id);
-            })
-            .then(() => {
-              this.props.getCategoriesByProjectId(this.projectId);
-            });
-        }
-      });
+    props.getProjectResearch(projectId);
+    props.getStarStatus(
+      props.activeUser.id,
+      props.match.params.id
+      )
+  });
+
+  // componentDidMount() {
+  //   this.props.getInvitesByProjectId(this.projectId).then(() => {
+  //     this.handleEditAccess();
+  //     this.props.getUsersFromInvites(this.props.projectInvites);
+  //   });
+  //   this.props.getProjectResearch(this.projectId);
+  //   this.props.getStarStatus(
+  //     this.props.activeUser.id,
+  //     this.props.match.params.id
+  //   );
+  //   this.props
+  //     .singleProject(this.projectId) //gets a single project from the database
+  //     .then(() => {
+  //       //if there is an error skip the rest of this if/else block
+  //       if (this.props.singleProjectError !== null) {
+  //         console.log('single project error', this.props.singleProjectError);
+  //         return;
+  //       } else {
+  //         //if there are no errors, get the project, photos, and comments
+  //         this.props
+  //           .singleProject(this.projectId)
+  //           .then(() => {
+  //             this.props.getProjectPhotos(this.projectId);
+  //           })
+  //           .then(() => {
+  //             this.props.getProjectComments(this.props.match.params.id);
+  //           })
+  //           .then(() => {
+  //             this.props.getCategoriesByProjectId(this.projectId);
+  //           });
+  //       }
+  //     });
+  // }
+  //add function
+  function onDocumentComplete(totalPage) {
+    //this.setState({ numPages: totalPage, pdfLoading: false });
+    setNumPages(totalPage);
+    setPdfLoading(false);
   }
 
-  onDocumentComplete(totalPage) {
-    this.setState({ numPages: totalPage, pdfLoading: false });
-  }
-
-  handleChangePage(direction) {
-    if (direction && this.state.pdfPage !== this.state.numPages) {
-      this.setState({ pdfPage: this.state.pdfPage + 1 });
-    } else if (!direction && this.state.pdfPage !== 1) {
-      this.setState({ pdfPage: this.state.pdfPage - 1 });
+  function handleChangePage(direction) {
+    // if (direction && this.state.pdfPage !== this.state.numPages) {
+    if (direction && pdfPage !== numPages) {
+      // this.setState({ pdfPage: this.state.pdfPage + 1 });
+      setPdfPage({ pdfPage: pdfPage + 1 });
+      // } else if (!direction && this.state.pdfPage !== 1) {
+    } else if (!direction && pdfPage !== 1) {
+      // this.setState({ pdfPage: this.state.pdfPage - 1 });
+      setPdfPage({ pdfPage: pdfPage - 1 });
     }
   }
 
-  starProject() {
+  // function starProject() {
+  //   const starObj = {
+  //     userId: props.activeUser.id,
+  //     projectId: this.projectId,
+  //   };
+  //   this.props.starProject(starObj).then(() => {
+  //     this.props.getStarStatus(
+  //       this.props.activeUser.id,
+  //       this.props.match.params.id
+  //     );
+  //   });
+  // }
+  function starProject() {
     const starObj = {
-      userId: this.props.activeUser.id,
-      projectId: this.projectId,
+      userId: props.activeUser.id,
+      projectId: projectId,
     };
-    this.props.starProject(starObj).then(() => {
-      this.props.getStarStatus(
-        this.props.activeUser.id,
-        this.props.match.params.id
-      );
+    props.starProject(starObj).then(() => {
+      props.getStarStatus(props.activeUser.id, props.match.params.id);
+    });
+  }
+  // function unstarProject() {
+  //   const starObj = {
+  //     id: this.props.activeUser.id,
+  //   };
+  //   this.props.unstarProject(starObj, this.props.match.params.id).then(() => {
+  //     this.props.getStarStatus(
+  //       this.props.activeUser.id,
+  //       this.props.match.params.id
+  //     );
+  //   });
+  // }
+
+  function unstarProject() {
+    const starObj = {
+      id: props.activeUser.id,
+    };
+    props.unstarProject(starObj, props.match.params.id).then(() => {
+      props.getStarStatus(props.activeUser.id, props.match.params.id);
     });
   }
 
-  unstarProject() {
-    const starObj = {
-      id: this.props.activeUser.id,
-    };
-    this.props.unstarProject(starObj, this.props.match.params.id).then(() => {
-      this.props.getStarStatus(
-        this.props.activeUser.id,
-        this.props.match.params.id
-      );
-    });
-  }
+  // function handleEditAccess() {
+  //   const userInvite = this.props.acceptedInvites.find(
+  //     (invite) => invite.email === this.props.activeUser.email
+  //   );
+  //   console.log(userInvite);
+  //   if (!userInvite || userInvite.write === false) {
+  //     this.setState({ editAccess: false });
+  //   } else {
+  //     this.setState({ editAccess: true });
+  //   }
+  // }
+  //
 
-  handleEditAccess() {
-    const userInvite = this.props.acceptedInvites.find(
-      (invite) => invite.email === this.props.activeUser.email
+  // ____________this function needs useState written for it___________
+  function handleEditAccess() {
+    const userInvite = props.acceptedInvites.find(
+      (invite) => invite.email === props.activeUser.email
     );
     console.log(userInvite);
     if (!userInvite || userInvite.write === false) {
-      this.setState({ editAccess: false });
+      setEditAccess({ editAccess: false });
     } else {
-      this.setState({ editAccess: true });
+      setEditAccess({ editAccess: true });
     }
   }
-
-  render() {
-    const activeUser = this.props.activeUser;
-    const thisProject = this.props.project;
-    if (this.props.singleProjectError === 404) {
-      return <Error404Projects />; //if the project was not found
-    } else if (this.props.singleProjectError === 401) {
-      return <Error401Projects />; //if the user is unauthorized to view the project
-    } else if (thisProject && activeUser && this.props.projectPhotos) {
-      return (
-        <div className="projects-container">
-          <div className="project-header">
-            <div className="project-header-alignment">
-              <div className="project-details">
-                <h2>{thisProject.name}</h2>
-                <h3>{thisProject.description}</h3>
-                <div className="subtitle">
-                  <span>
-                    Created by{' '}
-                    <span className="project-header-username">
-                      <Link
-                        to={`/profile/${thisProject.userId}/${thisProject.username}`}
-                      >
-                        {thisProject.username}
-                      </Link>
+  //_________________________________________________________
+  //
+  if (props.singleProjectError === 404) {
+    return <Error404Projects />; //if the project was not found
+  } else if (props.singleProjectError === 401) {
+    return <Error401Projects />; //if the user is unauthorized to view the project
+  } else if (thisProject && activeUser && props.projectPhotos) {
+    return (
+      <div className="projects-container">
+        <div className="project-header">
+          <div className="project-header-alignment">
+            <div className="project-details">
+              <h2>{thisProject.name}</h2>
+              <h3>{thisProject.description}</h3>
+              <div className="subtitle">
+                <span>
+                  Created by{' '}
+                  <span className="project-header-username">
+                    <Link
+                      to={`/profile/${thisProject.userId}/${thisProject.username}`}
+                    >
+                      {thisProject.username}
+                    </Link>
+                  </span>
+                </span>
+                <span>
+                  Created on{' '}
+                  {moment(thisProject.created_at).format('MMM DD, YYYY')}
+                </span>
+                <span>
+                  {thisProject.privateProjects === true ? 'Private' : 'Public'}
+                </span>
+                <span className="collab-count">
+                  {props.acceptedInvites.length}{' '}
+                  {props.acceptedInvites.length === 1
+                    ? 'Collaborator'
+                    : 'Collaborators'}
+                  {props.acceptedInvites.length === 0 ? null : (
+                    <span className="collab-members">
+                      {props.acceptedInvites.map((invite) => {
+                        const user = props.usersFromInvites.find(
+                          (user) => user.id === invite.userId
+                        );
+                        return (
+                          <p key={invite.id}>
+                            {!user
+                              ? null
+                              : user.firstName
+                              ? user.firstName + ' ' + user.lastName
+                              : user.email}{' '}
+                          </p>
+                        );
+                      })}
                     </span>
-                  </span>
-                  <span>
-                    Created on{' '}
-                    {moment(thisProject.created_at).format('MMM DD, YYYY')}
-                  </span>
-                  <span>
-                    {thisProject.privateProjects === true
-                      ? 'Private'
-                      : 'Public'}
-                  </span>
-                  <span className="collab-count">
-                    {this.props.acceptedInvites.length}{' '}
-                    {this.props.acceptedInvites.length === 1
-                      ? 'Collaborator'
-                      : 'Collaborators'}
-                    {this.props.acceptedInvites.length === 0 ? null : (
-                      <span className="collab-members">
-                        {this.props.acceptedInvites.map((invite) => {
-                          const user = this.props.usersFromInvites.find(
-                            (user) => user.id === invite.userId
-                          );
-                          return (
-                            <p key={invite.id}>
-                              {!user
-                                ? null
-                                : user.firstName
-                                ? user.firstName + ' ' + user.lastName
-                                : user.email}{' '}
-                            </p>
-                          );
-                        })}
-                      </span>
-                    )}
-                  </span>
-                  {/*project category*/}
-                  <span>
-                    {!this.props.projectCategories[0]
-                      ? null
-                      : this.props.projectCategories[0].category}
-                  </span>
-                </div>
+                  )}
+                </span>
+                {/*project category*/}
+                <span>
+                  {!props.projectCategories[0]
+                    ? null
+                    : props.projectCategories[0].category}
+                </span>
               </div>
-              <div className="project-header-right">
-                <div className="project-header-team">
-                  <img src={avatar1} alt="user avatar" />
-                  <img src={avatar2} alt="user avatar" />
-                  <img src={avatar3} alt="user avatar" />
+            </div>
+            <div className="project-header-right">
+              <div className="project-header-team">
+                <img src={avatar1} alt="user avatar" />
+                <img src={avatar2} alt="user avatar" />
+                <img src={avatar3} alt="user avatar" />
+              </div>
+              <div className="project-header-links">
+                <div className="project-header-button">
+                  {this.props.projectResearch[0] ? (
+                    <img
+                      src={caseStudyIcon}
+                      alt="case study"
+                      className="pdf-button"
+                      onClick={
+                        (() => setShowPDF({ showPDF: !showPDF }),
+                        setPdfLoading({ pdfLoading: false }))
+                        // this.setState({
+                        //   showPDF: !this.state.showPDF,
+                        //   pdfLoading: true,
+                        // })
+                      }
+                    />
+                  ) : (
+                    <img
+                      src={caseStudyIcon}
+                      alt="case study"
+                      className="pdf-button-disabled"
+                    />
+                  )}
                 </div>
-                <div className="project-header-links">
-                  <div className="project-header-button">
-                    {this.props.projectResearch[0] ? (
-                      <img
-                        src={caseStudyIcon}
-                        alt="case study"
-                        className="pdf-button"
-                        onClick={() =>
-                          this.setState({
-                            showPDF: !this.state.showPDF,
-                            pdfLoading: true,
-                          })
-                        }
-                      />
-                    ) : (
-                      <img
-                        src={caseStudyIcon}
-                        alt="case study"
-                        className="pdf-button-disabled"
-                      />
-                    )}
-                  </div>
-                  <div className="project-header-button">
-                    {thisProject.figma ? (
-                      <a href={thisProject.figma}>
-                        <img
-                          src={figmaIcon}
-                          className={
-                            thisProject.figma === null ||
-                            thisProject.figma === ''
-                              ? 'link-disabled'
-                              : 'link-enabled'
-                          }
-                          alt="figma"
-                        />
-                      </a>
-                    ) : (
+                <div className="project-header-button">
+                  {thisProject.figma ? (
+                    <a href={thisProject.figma}>
                       <img
                         src={figmaIcon}
                         className={
@@ -265,23 +355,22 @@ class Project extends Component {
                         }
                         alt="figma"
                       />
-                    )}
-                  </div>
-                  <div className="project-header-button">
-                    {thisProject.invision ? (
-                      <a href={thisProject.invision}>
-                        <img
-                          src={invisionIcon}
-                          className={
-                            thisProject.invision === '' ||
-                            thisProject.invision === null
-                              ? 'link-disabled'
-                              : 'link-enabled'
-                          }
-                          alt="invision"
-                        />
-                      </a>
-                    ) : (
+                    </a>
+                  ) : (
+                    <img
+                      src={figmaIcon}
+                      className={
+                        thisProject.figma === null || thisProject.figma === ''
+                          ? 'link-disabled'
+                          : 'link-enabled'
+                      }
+                      alt="figma"
+                    />
+                  )}
+                </div>
+                <div className="project-header-button">
+                  {thisProject.invision ? (
+                    <a href={thisProject.invision}>
                       <img
                         src={invisionIcon}
                         className={
@@ -292,107 +381,95 @@ class Project extends Component {
                         }
                         alt="invision"
                       />
-                    )}
-                  </div>
-                  <div className="download project-header-button">
-                    <DownloadIcon />
-                  </div>
-                  <div
-                    onClick={
-                      this.props.isStarred
-                        ? this.unstarProject
-                        : this.starProject
-                    }
-                    className="star project-header-button"
-                  >
-                    <StarIcon isStarred={this.props.isStarred} />
-                  </div>
-                  {(this.props.activeUser.id === this.props.project.userId ||
-                    this.state.editAccess) && (
-                    <div
-                      className="edit project-header-button"
-                      onClick={() => {
-                        this.props.history.push(
-                          `/project/${this.projectId}/edit`
-                        );
-                      }}
-                    >
-                      Edit
-                    </div>
+                    </a>
+                  ) : (
+                    <img
+                      src={invisionIcon}
+                      className={
+                        thisProject.invision === '' ||
+                        thisProject.invision === null
+                          ? 'link-disabled'
+                          : 'link-enabled'
+                      }
+                      alt="invision"
+                    />
                   )}
                 </div>
+                <div className="download project-header-button">
+                  <DownloadIcon />
+                </div>
+                <div
+                  onClick={
+                    props.isStarred ? unstarProject : starProject
+                    // this.props.isStarred ? this.unstarProject : this.starProject
+                  }
+                  className="star project-header-button"
+                >
+                  <StarIcon isStarred={props.isStarred} />
+                </div>
+                {(props.activeUser.id === props.project.userId ||
+                  editAccess) && (
+                  <div
+                    className="edit project-header-button"
+                    onClick={() => {
+                      props.history.push(`/project/${projectId}/edit`);
+                    }}
+                  >
+                    Edit
+                  </div>
+                )}
               </div>
             </div>
           </div>
-          {this.state.showPDF && this.props.projectResearch.length > 0 ? (
-            <div className="pdf-view">
-              <div className="pdf-nav-buttons">
-                <button onClick={() => this.setState({ pdfPage: 1 })}>
-                  First
-                </button>
-                <button onClick={() => this.handleChangePage(false)}>
-                  Previous
-                </button>
-                <p>
-                  Page {this.state.pdfPage} of {this.state.numPages}
-                </p>
-                <button onClick={() => this.handleChangePage(true)}>
-                  Next
-                </button>
-                <button
-                  onClick={() =>
-                    this.setState({ pdfPage: this.state.numPages })
-                  }
-                >
-                  Last
-                </button>
-              </div>
-              <PDFReader
-                url={this.props.projectResearch[0].url}
-                onDocumentComplete={this.onDocumentComplete}
-                page={this.state.pdfPage}
-              />
-              {this.state.pdfLoading ? <Loading /> : null}
-              <div className="pdf-nav-buttons">
-                <button onClick={() => this.setState({ pdfPage: 1 })}>
-                  First
-                </button>
-                <button onClick={() => this.handleChangePage(false)}>
-                  Previous
-                </button>
-                <p>
-                  Page {this.state.pdfPage} of {this.state.numPages}
-                </p>
-                <button onClick={() => this.handleChangePage(true)}>
-                  Next
-                </button>
-                <button
-                  onClick={() =>
-                    this.setState({ pdfPage: this.state.numPages })
-                  }
-                >
-                  Last
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="project-body">
-              {/* THIS IS THE IMAGE CAROUSEL, it manages the StickyComments and ProjectComments */}
-              <ImageViewer
-                activeUser={activeUser}
-                comments={this.props.projectComments}
-                thisProject={thisProject}
-                thumbnails={this.props.projectPhotos}
-              />
-            </div>
-          )}
         </div>
-      );
-    } else {
-      return <Loading />; //if it wasn't a 401 or 404 error, display the spinner
-    }
+        {showPDF && props.projectResearch.length > 0 ? (
+          <div className="pdf-view">
+            <div className="pdf-nav-buttons">
+              <button onClick={() => setPdfPage({ pdfPage: 1 })}>First</button>
+              <button onClick={() => handleChangePage(false)}>Previous</button>
+              <p>
+                Page {pdfPage} of {numPages}
+              </p>
+              <button onClick={() => handleChangePage(true)}>Next</button>
+              <button onClick={() => setPdfPage({ pdfPage: numPages })}>
+                Last
+              </button>
+            </div>
+            <PDFReader
+              url={props.projectResearch[0].url}
+              onDocumentComplete={onDocumentComplete}
+              page={pdfPage}
+            />
+            {pdfLoading ? <Loading /> : null}
+            <div className="pdf-nav-buttons">
+              <button onClick={() => setPdfPage({ pdfPage: 1 })}>First</button>
+              <button onClick={() => handleChangePage(false)}>Previous</button>
+              <p>
+                Page {pdfPage} of {numPages}
+              </p>
+              <button onClick={() => handleChangePage(true)}>Next</button>
+              <button onClick={() => setPdfPage({ pdfPage: numPages })}>
+                Last
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="project-body">
+            {/* THIS IS THE IMAGE CAROUSEL, it manages the StickyComments and ProjectComments */}
+            <ImageViewer
+              activeUser={activeUser}
+              comments={props.projectComments}
+              thisProject={thisProject}
+              thumbnails={props.projectPhotos}
+            />
+          </div>
+        )}
+      </div>
+    );
+  } else {
+    return <Loading />; //if it wasn't a 401 or 404 error, display the spinner
   }
-}
+};
 
 // const mapStateToProps = state => {
 //   return {
