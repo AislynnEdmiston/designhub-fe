@@ -1,15 +1,9 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery } from 'react-apollo';
 import moment from 'moment';
+import { connect } from 'react-redux';
 import { PDFReader } from 'reactjs-pdf-reader';
-import './SASS/Project.scss';
 
-//components:
-import Loading from '../../common/Loading';
-import Error401Projects from './Error401Projects';
-import Error404Projects from './Error404Projects';
-//Images and Icons:
 import avatar1 from '../../ASSETS/avatar.jpg';
 import avatar2 from '../../ASSETS/avatar_2.jpg';
 import avatar3 from '../../ASSETS/avatar_3.jpg';
@@ -18,29 +12,25 @@ import invisionIcon from '../../ASSETS/invision-icon.png';
 import DownloadIcon from '../../common/Icons/DownloadIcon';
 import StarIcon from '../../common/Icons/StarIcon';
 import ImageViewer from '../ImageViewer/ImageViewer.js';
+import Loading from '../../common/Loading';
+import Error401Projects from './Error401Projects';
+import Error404Projects from './Error404Projects';
 import caseStudyIcon from '../../ASSETS/case-study.png';
-//apollo client:
-import projectUser from '../../graphql/queries/projectUser';
-import projectPhotos from '../../graphql/queries/projectPhotos';
-import comments from '../../graphql/queries/comments';
-import starCount from '../../graphql/queries/starCount';
-import getInvite from '../../graphql/queries/getInvite';
-import projectInvitesById from '../../graphql/queries/projectInvitesById';
-import researchByProject from '../../graphql/queries/researchByProject';
-import getCatById from '../../graphql/queries/getCatById';
 
 import {
-  ProjectUser,
+  getSingleProject,
   getProjectPhotos,
   getProjectComments,
   starProject,
   getStarStatus,
-  //unstarProject,?
+  unstarProject,
   getInvitesByProjectId,
   getUsersFromInvites,
   getProjectResearch,
   getCategoriesByProjectId,
 } from '../../store/actions';
+
+import './SASS/Project.scss';
 
 class Project extends Component {
   constructor(props) {
@@ -53,14 +43,6 @@ class Project extends Component {
       showPDF: false,
       pdfLoading: false,
     };
-    // this.singleProject = useQuery(projectUser);
-    // this.getProjectPhotos = useQuery(projectPhotos);
-    // this.getProjectComments = useQuery(comments);
-    // this.getStarStatus = useQuery(starCount);
-    // this.getUsersFromInvites = useQuery(getInvite);
-    // this.getInvitesByProjectId = useQuery(projectInvitesById);
-    // this.getProjectResearch = useQuery(researchByProject);
-    // this.getCategoriesByProjectId = useQuery(getCatById);
   }
 
   componentDidMount() {
@@ -74,7 +56,7 @@ class Project extends Component {
       this.props.match.params.id
     );
     this.props
-      .singleProject(this.projectId) //gets a single project from the database
+      .getSingleProject(this.projectId) //gets a single project from the database
       .then(() => {
         //if there is an error skip the rest of this if/else block
         if (this.props.singleProjectError !== null) {
@@ -83,7 +65,7 @@ class Project extends Component {
         } else {
           //if there are no errors, get the project, photos, and comments
           this.props
-            .singleProject(this.projectId)
+            .getSingleProject(this.projectId)
             .then(() => {
               this.props.getProjectPhotos(this.projectId);
             })
@@ -394,19 +376,30 @@ class Project extends Component {
   }
 }
 
-// const mapStateToProps = state => {
-//   return {
-//     project: state.projects.singleProject,
-//     singleProjectError: state.projects.error, //assign 401 or 404 to singleProjectsError
-//     projectPhotos: state.photos.projectPhotos,
-//     projectComments: state.comments.projectComments,
-//     isStarred: state.stars.isStarred,
-//     acceptedInvites: state.projects.acceptedInvites,
-//     usersFromInvites: state.invites.usersFromInvites,
-//     projectInvites: state.projects.projectInvites,
-//     projectResearch: state.research.projectResearch,
-//     projectCategories: state.categories.projectCategories
-//   };
-// };
+const mapStateToProps = (state) => {
+  return {
+    project: state.projects.singleProject,
+    singleProjectError: state.projects.error, //assign 401 or 404 to singleProjectsError
+    projectPhotos: state.photos.projectPhotos,
+    projectComments: state.comments.projectComments,
+    isStarred: state.stars.isStarred,
+    acceptedInvites: state.projects.acceptedInvites,
+    usersFromInvites: state.invites.usersFromInvites,
+    projectInvites: state.projects.projectInvites,
+    projectResearch: state.research.projectResearch,
+    projectCategories: state.categories.projectCategories,
+  };
+};
 
-export default Project;
+export default connect(mapStateToProps, {
+  getSingleProject,
+  getProjectPhotos,
+  getProjectComments,
+  starProject,
+  getStarStatus,
+  unstarProject,
+  getInvitesByProjectId,
+  getUsersFromInvites,
+  getProjectResearch,
+  getCategoriesByProjectId,
+})(Project);

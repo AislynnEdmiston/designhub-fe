@@ -21,28 +21,27 @@ const TopBar = ({ history, activeUser, searchData, getSearch }) => {
   const target = useRef();
 
   const init = () => {
-    if(startLight) {
+    if (startLight) {
       toggleLightMode();
     }
     document.addEventListener('mousedown', handleClick);
     return () => {
       document.removeEventListener('mousedown', handleClick);
     };
-  }
+  };
 
   useEffect(init, []);
 
-  const handleClick = e => {
+  const handleClick = (e) => {
     if (!target.current.contains(e.target)) {
       setShow(false);
     }
   };
 
-
   // look at mixins.scss and palette.scss for more info on this theming function
   const setLightMode = () => {
     toggleLightMode();
-    if(light) {
+    if (light) {
       localStorage.setItem('theme', 'dark');
     } else {
       localStorage.setItem('theme', 'light');
@@ -52,7 +51,7 @@ const TopBar = ({ history, activeUser, searchData, getSearch }) => {
 
   const toggleLightMode = () => {
     document.documentElement.classList.toggle('theme-light');
-  }
+  };
 
   const [open, mobileNav] = useState(true);
   const toggleNav = () => {
@@ -89,7 +88,7 @@ const TopBar = ({ history, activeUser, searchData, getSearch }) => {
             ref={target}
             onClick={() => setShow(!show)}
           >
-            <p className='top-bar-user-info'>{activeUser.username}</p>
+            <p className="top-bar-user-info">{activeUser.username}</p>
 
             <div>
               <img
@@ -102,7 +101,7 @@ const TopBar = ({ history, activeUser, searchData, getSearch }) => {
               <Tooltip
                 show={show}
                 arrowAlign="center"
-                backgroundColor={light ? undefined : "#212229"}
+                backgroundColor={light ? undefined : '#212229'}
                 // hoverColor="#212229"
                 border="1px solid #ffffff"
                 position="bottom right"

@@ -9,7 +9,7 @@ import { useDropzone } from 'react-dropzone';
 const thumbInner = {
   display: 'flex',
   minWidth: 0,
-  overflow: 'hidden'
+  overflow: 'hidden',
 };
 
 export function MultiImageUpload(props) {
@@ -18,23 +18,23 @@ export function MultiImageUpload(props) {
     isDragActive,
     isDragReject,
     getRootProps,
-    getInputProps
+    getInputProps,
   } = useDropzone({
     accept: 'image/*',
-    onDrop: acceptedFiles => {
+    onDrop: (acceptedFiles) => {
       setFiles([
         ...files,
-        ...acceptedFiles.map(file =>
+        ...acceptedFiles.map((file) =>
           Object.assign(file, {
-            preview: URL.createObjectURL(file)
+            preview: URL.createObjectURL(file),
           })
-        )
+        ),
       ]);
-    }
+    },
   });
 
   const thumbs = () => {
-    const removeThumbnail = index => {
+    const removeThumbnail = (index) => {
       const newList = files.filter((file, i) => files[index] !== file);
       setFiles(newList);
     };
@@ -65,7 +65,7 @@ export function MultiImageUpload(props) {
         {...getRootProps({ className: 'dropzone' })}
         className={`upload-container${isDragActive ? ' active' : ''}${
           isDragReject ? ' rejected' : ''
-          }`}
+        }`}
       >
         <input {...getInputProps()} multiple={true} />
         <div className="drop-text-container">

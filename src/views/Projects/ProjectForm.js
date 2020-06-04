@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { withRouter, Redirect } from 'react-router-dom';
-import axios from 'axios';
-import { useMutation } from '@apollo/react-hooks';
+import { Redirect } from 'react-router-dom';
+// import axios from 'axios';
+import { useMutation, useQuery } from '@apollo/react-hooks';
 import { axiosWithAuth } from '../../utilities/axiosWithAuth.js';
 import anonymous from '../../ASSETS/anonymous.jpg';
 
@@ -22,21 +22,40 @@ import anonymous from '../../ASSETS/anonymous.jpg';
 //  // updateProjectCategory
 // } from '../../store/actions';
 
-import addProject from '../../graphql/mutations/addproject';
-import addProjectPhoto from '../../graphql/mutations/addProjectPhoto';
-import addHeatmap from '../../graphql/mutations/addHeatmap';
-import updateProject from '../../graphql/mutations/updateProject';
-import deleteProjectPhoto from '../../graphql/mutations/deleteProjectPhoto';
-import deleteProject from '../../graphql/mutations/deleteProject';
-import addInvite from '../../graphql/mutations/addInvite';
-import getInvite from '../../graphql/queries/getInvite';
-import projectInvitesById from '../../graphql/queries/projectInvitesById';
-import researchById from '../../graphql/queries/researchById';
-import addUserResearch from '../../graphql/mutations/addUserResearch';
-import deleteUserResearch from '../../graphql/mutations/deleteUserResearch';
-import getAllCats from '../../graphql/queries/getAllCats';
-import addCategory from '../../graphql/mutations/addCategory';
-import updateCategory from '../../graphql/mutations/updateCategory';
+// import addProject from '../../graphql/mutations/addproject';
+// import addProjectPhoto from '../../graphql/mutations/projects/addProjectPhoto';
+// import addHeatmap from '../../graphql/mutations/heatmap/addHeatmap';
+// import updateProject from '../../graphql/mutations/projects/updateProject';
+// import deleteProjectPhoto from '../../graphql/mutations/deleteProjectPhoto';
+// import deleteProject from '../../graphql/mutations/projects/deleteProject';
+// import addInvite from '../../graphql/mutations/invites/addInvite';
+// import getInvite from '../../graphql/queries/invites/getInvite';
+// import projectInvitesById from '../../graphql/queries/invites/projectInvitesById';
+// import researchById from '../../graphql/queries/users/researchById';
+// import addUserResearch from '../../graphql/mutations/users/addUserResearch';
+// import deleteUserResearch from '../../graphql/mutations/users/deleteUserResearch';
+// import getAllCats from '../../graphql/queries/categories/getAllCats';
+// import addCategory from '../../graphql/mutations/categories/addCategory';
+// import updateCategory from '../../graphql/mutations/categories/updateCategory';
+
+import {
+  GET_ALL_CATEGORIES_QUERY,
+  // GET_INVITE_BY_ID_QUERY,
+  GET_PROJECT_INVITE_BY_ID_QUERY,
+  GET_RESEARCH_BY_ID_QUERY,
+  ADD_PROJECT_MUTATION,
+  ADD_PROJECT_PHOTO_MUTATION,
+  ADD_CATEGORY_MUTATION,
+  ADD_HEATMAP_MUTATION,
+  ADD_INVITE_MUTATION,
+  ADD_USER_RESEARCH_MUTATION,
+  UPDATE_CATEGORY_MUTATION,
+  UPDATE_PROJECT_MUTATION,
+  DELETE_PROJECT_PHOTO_MUTATION,
+  DELETE_USER_RESEARCH_MUTATION,
+  GET_RESEARCH_BY_PROJECT_ID_QUERY,
+  // DELETE_PROJECT_MUTATION,
+} from '../../graphql';
 
 import { MultiImageUpload } from './MultiImageUpload.js';
 import Loading from '../../common/Loading';
@@ -44,6 +63,7 @@ import DeleteIcon from '../../common/Icons/DeleteIcon.js';
 import remove from '../../ASSETS/remove.svg';
 import CharacterCount from '../../common/CharacterCount/CharacterCount';
 import ProjectInvite from './ProjectInvite';
+import { useHistory } from 'react-router-dom';
 
 import './SASS/ProjectForm.scss';
 
@@ -56,19 +76,22 @@ const ProjectForm = ({
   loadingUsers,
   isDeleting,
 }) => {
-  const [addProject] = useMutation(addProject);
-  const [addProjectPhoto] = useMutation(addProjectPhoto);
-  const [addHeatmap] = useMutation(addHeatmap);
-  const [updateProject] = useMutation(updateProject);
-  const [deleteProjectPhoto] = useMutation(deleteProjectPhoto);
-  const [addInvite] = useMutation(addInvite);
-  const [getInvite] = useMutation(getInvite);
-  const [projectInvitesById] = useMutation(projectInvitesById);
-  const [addUserResearch] = useMutation(addUserResearch);
-  const [deleteUserResearch] = useMutation(deleteUserResearch);
-  const [getAllCats] = useMutation(getAllCats);
-  const [addCategory] = useMutation(addCategory);
-  const [updateCategory] = useMutation(updateCategory);
+  const [addProject] = useMutation(ADD_PROJECT_MUTATION);
+  const [addProjectPhoto] = useMutation(ADD_PROJECT_PHOTO_MUTATION);
+  const [addHeatmap] = useMutation(ADD_HEATMAP_MUTATION);
+  const [deleteProject] = useMutation(UPDATE_PROJECT_MUTATION);
+  const [deleteProjectPhoto] = useMutation(DELETE_PROJECT_PHOTO_MUTATION);
+  const [addInvite] = useMutation(ADD_INVITE_MUTATION);
+  // const [getInvite] = useQuery(GET_INVITE_BY_ID_QUERY);
+  const { data: projectInvitesById } = useQuery(GET_PROJECT_INVITE_BY_ID_QUERY);
+  const [addUserResearch] = useMutation(ADD_USER_RESEARCH_MUTATION);
+  const [deleteUserResearch] = useMutation(DELETE_USER_RESEARCH_MUTATION);
+  const [addCategory] = useMutation(ADD_CATEGORY_MUTATION);
+  const [updateCategory] = useMutation(UPDATE_CATEGORY_MUTATION);
+  const { data: getAllCats } = useQuery(GET_ALL_CATEGORIES_QUERY);
+  const { data: getProjectResearch } = useQuery(
+    GET_RESEARCH_BY_PROJECT_ID_QUERY
+  );
 
   const [files, setFiles] = useState([]);
   const [researchFile, setResearchFile] = useState([]);
@@ -82,13 +105,15 @@ const ProjectForm = ({
   const [editAccess, setEditAccess] = useState(true);
   const [kickback, setKickback] = useState(true);
 
-  let found = '';
-  const [foundProjectCategory, setFoundProjectCategory] = useState({});
+  // let found = '';
+  const [foundProjectCategory] = useState({});
 
   const shareLink = String(window.location).slice(
     0,
     String(window.location).length - 4
   );
+
+  const history = useHistory();
 
   const [state, setState] = useState({
     project: {
@@ -170,7 +195,7 @@ const ProjectForm = ({
             projectId: file.projectId,
             url: file.url,
           },
-          refetchQueries: [{ query: researchById }],
+          refetchQueries: [{ query: GET_RESEARCH_BY_ID_QUERY }],
         });
         setFiles(!file);
       } catch (err) {
@@ -185,23 +210,24 @@ const ProjectForm = ({
     }
   };
 
-  const handleImageUpload = async (file) => {
+  const handleImageUpload = async () => {
     if (files.length > 0) {
       let requestPromises = files.map(async (file) => {
         try {
           await addProjectPhoto({
-          variables: {
-              projectId: projectId,
-              url: key,}
+            variables: {
+              projectId: file.projectId,
+              url: file.key,
+            },
           });
 
           await addHeatmap({
             userId: state.project.userId,
-            contribution: `Posted one photo to ${projectTitle}`,
-            projectId: projectId,
-            imageId: data.id,
+            contribution: `Posted one photo to ${file.projectTitle}`,
+            projectId: file.projectId,
+            imageId: file.id,
           });
-          const imageUrl = `${process.env.REACT_APP_S3_BUCKET_URL}${key}`;
+          const imageUrl = `${process.env.REACT_APP_S3_BUCKET_URL}${file.key}`;
           return imageUrl;
         } catch (err) {
           console.error('ProjectForm.js handleSubmit() ERROR', err);
@@ -285,7 +311,7 @@ const ProjectForm = ({
         //update the project
         .then(() => {
           updateProject(id, changes)
-            .then((res) => {
+            .then(() => {
               history.push(`/project/${id}`);
             })
             .catch((err) => {
@@ -321,7 +347,7 @@ const ProjectForm = ({
     if (researchFile.length > 0) {
       if (projectResearch.length > 0) {
         projectResearch.forEach((research) => {
-          handleDeleteUserResearch(research.id);
+          handleDeleteResearch(research.id);
         });
         handleResearchUpload(researchFile, id);
       } else {
@@ -341,7 +367,7 @@ const ProjectForm = ({
 
   const handleDeletePhoto = (id) => {
     deleteProjectPhoto(id)
-      .then((res) => {
+      .then(() => {
         closeModal();
         getProjectPhotos(project.id);
       })
@@ -350,7 +376,7 @@ const ProjectForm = ({
 
   const handleDeleteResearch = (id) => {
     deleteUserResearch(id)
-      .then((res) => {
+      .then(() => {
         closeModal();
         getProjectResearch(project.id);
       })
@@ -413,7 +439,7 @@ const ProjectForm = ({
               setKickback(false);
             }
           })
-          .catch((err) => {
+          .catch(() => {
             console.log('handleEditAccess error');
           });
   };
@@ -422,26 +448,26 @@ const ProjectForm = ({
     getAllCats();
   };
 
-  const getCategories = () => {
-    //getCategoriesByProjectId(project.id);
-    //let found = {};
+  // const getCategories = () => {
+  //   //getCategoriesByProjectId(project.id);
+  //   //let found = {};
 
-    axiosWithAuth()
-      .get(`/api/v1/categories/projects/${project.id}`)
-      .then((res) => {
-        console.log('res.data', res.data);
+  //   axiosWithAuth()
+  //     .get(`/api/v1/categories/projects/${project.id}`)
+  //     .then((res) => {
+  //       console.log('res.data', res.data);
 
-        found = res.data.find((project_category) => {
-          return project_category.projectId === project.id;
-        });
+  //       found = res.data.find((project_category) => {
+  //         return project_category.projectId === project.id;
+  //       });
 
-        setFoundProjectCategory({ ...foundProjectCategory, found });
-        console.log(
-          'found project category in getCategories',
-          foundProjectCategory
-        );
-      });
-  };
+  //       setFoundProjectCategory({ ...foundProjectCategory, found });
+  //       console.log(
+  //         'found project category in getCategories',
+  //         foundProjectCategory
+  //       );
+  //     });
+  // };
 
   //populates categoryName drop down with names
   useEffect(getNames, [categoryNames]);

@@ -13,7 +13,7 @@ const Navbar = ({ activeUser }) => {
   const [bool, setBool] = useState(null);
 
   useEffect(() => {
-    const getNotifyBool = async id => {
+    const getNotifyBool = async (id) => {
       const { data } = await axiosWithAuth().get(`api/v1/invite/bool/${id}`);
 
       setBool(data);
@@ -34,19 +34,16 @@ const Navbar = ({ activeUser }) => {
             </div>
           </NavLink>
         </div>
-
         <div className="navlinks">
           <NavLink to="/create" activeClassName="active-links">
             <CreateNewProjectIcon />
           </NavLink>
         </div>
-
         <div className="navlinks">
           <NavLink to="/explore" activeClassName="active-links">
             <MyProjectsIcon />
           </NavLink>
         </div>
-
         <div className="navlinks">
           <NavLink
             to={`/notifications/${activeUser.id}/${activeUser.username}`}
@@ -56,7 +53,6 @@ const Navbar = ({ activeUser }) => {
             {bool ? <span className="notification-indicator">•</span> : ''}
           </NavLink>
         </div>
-
         <div className="navlinks">
           <NavLink to="/settings" activeClassName="active-links">
             <SettingsIcon />
