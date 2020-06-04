@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
-const deleteProjectPhotos = gql`
-  mutation deleteProjectPhotos($id: ID!) {
-    deleteProjectPhotos(id: $id)
-  }
+const deleteUser = gql`
+mutation deleteUser($id: ID!) {
+  deleteUser(id: $id)
+}
 `;
-export default deleteProjectPhotos;
+export default deleteUser;
