@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery } from 'react-apollo';
 import moment from 'moment';
 import { PDFReader } from 'reactjs-pdf-reader';
 import './SASS/Project.scss';
@@ -18,16 +17,6 @@ import invisionIcon from '../../ASSETS/invision-icon.png';
 import DownloadIcon from '../../common/Icons/DownloadIcon';
 import StarIcon from '../../common/Icons/StarIcon';
 import ImageViewer from '../ImageViewer/ImageViewer.js';
-import caseStudyIcon from '../../ASSETS/case-study.png';
-//apollo client:
-import projectUser from '../../graphql/queries/projectUser';
-import projectPhotos from '../../graphql/queries/projectPhotos';
-import comments from '../../graphql/queries/comments';
-import starCount from '../../graphql/queries/starCount';
-import getInvite from '../../graphql/queries/getInvite';
-import projectInvitesById from '../../graphql/queries/projectInvitesById';
-import researchByProject from '../../graphql/queries/researchByProject';
-import getCatById from '../../graphql/queries/getCatById';
 
 // import {
 //   ProjectUser,
@@ -199,8 +188,6 @@ const Project = (props) => {
       userId: props.activeUser.id,
       projectId: projectId,
     };
-    props.starProject(starObj).then(() => {
-      props.getStarStatus(props.activeUser.id, props.match.params.id);
     });
   }
   // function unstarProject() {
@@ -219,9 +206,8 @@ const Project = (props) => {
     const starObj = {
       id: props.activeUser.id,
     };
-    props.unstarProject(starObj, props.match.params.id).then(() => {
-      props.getStarStatus(props.activeUser.id, props.match.params.id);
     });
+  };
   }
 
   // function handleEditAccess() {
