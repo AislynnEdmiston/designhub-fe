@@ -1,12 +1,15 @@
 import gql from 'graphql-tag';
 
 const search = gql`
-mutation search($data: searchInput!) {
-  search(data: $data){
-  text
-  user
-  project
+mutation search($text: String!) {
+  search(text: $text){
+  user{
+    id
   }
+  project{
+    id
+  }
+}
 }
 `;
 
