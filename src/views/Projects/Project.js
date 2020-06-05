@@ -17,8 +17,17 @@ import invisionIcon from '../../ASSETS/invision-icon.png';
 import DownloadIcon from '../../common/Icons/DownloadIcon';
 import StarIcon from '../../common/Icons/StarIcon';
 import ImageViewer from '../ImageViewer/ImageViewer.js';
-
-// import {
+import {
+  GET_USER_PROJECTS_QUERY,
+  GET_ALL_PROJECT_PHOTOS_QUERY,
+  GET_PROJECT_COMMENTS_QUERY,
+  GET_STAR_COUNT_QUERY,
+  GET_INVITE_BY_ID_QUERY,
+  GET_USER_PROJECT_INVITE_QUERY,
+  GET_ALL_USER_PROJECT_INVITES_QUERY,
+  GET_RESEARCH_BY_PROJECT_ID_QUERY,
+  GET_USER_BY_ID_QUERY,
+} from '../../graphql';// import {
 //   ProjectUser,
 //   getProjectPhotos,
 //   getProjectComments,
@@ -66,42 +75,42 @@ const Project = (props) => {
   //   showPDF: false,
   //   pdfLoading: false,
   // };
-  const singleProject = useQuery(projectUser, {
+  const singleProject = useQuery(GET_USER_BY_ID_QUERY, {
     variables: {
       id,
     },
   });
-  const getProjectPhotos = useQuery(projectPhotos, {
+  const getProjectPhotos = useQuery(GET_ALL_PROJECT_PHOTOS_QUERY, {
     variables: {
       projectId,
     },
   });
-  const getProjectComments = useQuery(comments, {
+  const getProjectComments = useQuery(GET_PROJECT_COMMENTS_QUERY, {
     variables: {
       projectId,
     },
   });
-  const getStarStatus = useQuery(starCount, {
+  const getStarStatus = useQuery(GET_STAR_COUNT_QUERY, {
     variables: {
       id,
     },
   });
-  const getUsersFromInvites = useQuery(getInvite, {
+  const getUsersFromInvites = useQuery(GET_USER_PROJECT_INVITE_QUERY, {
     variables: {
       id,
     },
   });
-  const getInvitesByProjectId = useQuery(projectInvitesById, {
+  const getInvitesByProjectId = useQuery(GET_INVITE_BY_ID_QUERY, {
     variables: {
       id,
     },
   });
-  const getProjectResearch = useQuery(researchByProject, {
+  const getProjectResearch = useQuery(GET_RESEARCH_BY_PROJECT_ID_QUERY, {
     variables: {
       projectId,
     },
   });
-  const getCategoriesByProjectId = useQuery(getCatById, {
+  const getCategoriesByProjectId = useQuery(GET_CATEGORY_BY_ID_QUERY, {
     variables: {
       id,
     },
@@ -188,7 +197,7 @@ const Project = (props) => {
       userId: props.activeUser.id,
       projectId: projectId,
     };
-    });
+    };
   }
   // function unstarProject() {
   //   const starObj = {
@@ -206,9 +215,9 @@ const Project = (props) => {
     const starObj = {
       id: props.activeUser.id,
     };
-    });
-  };
-  }
+    };
+  
+  
 
   // function handleEditAccess() {
   //   const userInvite = this.props.acceptedInvites.find(
